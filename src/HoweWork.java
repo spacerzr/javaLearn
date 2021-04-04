@@ -7,9 +7,14 @@ public class HoweWork {
         fillArray();
         multiplyNumbersOfSix();
         fillDiagonals();
-
         int[] result = initializeArray(8, 7);
         System.out.println(Arrays.toString(result));
+        minAndMaxElementOfArray();
+
+        int[] arrayToCheck1 = {2, 2, 2, 1, 2, 2, 10, 1};
+        int[] arrayToCheck2 = {1, 1, 1, 2, 1};
+        System.out.println(checkBalance(arrayToCheck1));
+        System.out.println(checkBalance(arrayToCheck2));
     }
 
     // задание №1 вариант №1
@@ -81,8 +86,8 @@ public class HoweWork {
             }
         }
 
-        for (int i = 0; i < array.length; i++) {
-            System.out.println(Arrays.toString(array[i]));
+        for (int[] element : array) {
+            System.out.println(Arrays.toString(element));
         }
     }
 
@@ -94,4 +99,40 @@ public class HoweWork {
         }
         return array;
     }
+
+    //задание №6
+    public static void minAndMaxElementOfArray() {
+        int[] array = {5, 5, 3, -2, 11, 4, 5, 2, 4, -8, 9, 1};
+        int min = array[0];
+        int max = array[0];
+        for (int elm : array) {
+            if (elm < min) {
+                min = elm;
+            }
+            if (elm > max) {
+                max = elm;
+            }
+        }
+        System.out.println("minimum: " + min);
+        System.out.println("maximum: " + max);
+    }
+
+    //задание №7
+    public static boolean checkBalance(int[] array) {
+        for (int i = 0; i < array.length; i++) {
+            int leftSum = 0;
+            int rightSum = 0;
+            for (int j = 0; j < i; j++) {
+                leftSum += array[j];
+            }
+            for (int f = i; f < array.length; f++) {
+                rightSum += array[f];
+            }
+            if (leftSum == rightSum) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
