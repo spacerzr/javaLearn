@@ -1,11 +1,14 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
+import model.Weather;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import references.References;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -45,40 +48,30 @@ public class Main {
             Map geoObject = (Map) responseMap.get("geo_object");
             Map locality = (Map) geoObject.get("locality");
 
-            System.out.println("Получена погода для города " + locality.get("name"));
-            System.out.println();
-            System.out.println("==================================================");
-            System.out.println();
+            String city = locality.get("name").toString();
 
-            ArrayList dataList = (ArrayList) responseMap.get("forecasts");
+            List dataList = (ArrayList) responseMap.get("forecasts");
 
             for (Object oneDayData: dataList) {
                 Map oneDayMap = (Map) oneDayData;
-                System.out.println("Погода на дату: " + oneDayMap.get("date"));
+                String date = oneDayMap.get("date").toString();
 
                 Map parts = (Map) oneDayMap.get("parts");
                 Map night = (Map) parts.get("night");
-                System.out.println("Минимальная температура ночью:" + night.get("temp_min"));
-                System.out.println("Средняя температура ночью:" + night.get("temp_avg"));
-                System.out.println("Максимальная температура ночью:" + night.get("temp_max"));
-                System.out.println("Скорость ветра ночью:" + night.get("wind_speed"));
-                System.out.println();
-                Map day = (Map) parts.get("day");
-                System.out.println("Минимальная температура днем:" + day.get("temp_min"));
-                System.out.println("Средняя температура днем:" + day.get("temp_avg"));
-                System.out.println("Максимальная температура днем:" + day.get("temp_max"));
-                System.out.println("Скорость ветра днем:" + night.get("wind_speed"));
-                System.out.println();
+                int nightTemperature = Integer.parseInt(night.get("temp_avg").toString());
+                String nightConditionKey = night.get("condition").toString();
 
-                System.out.println();
-                System.out.println("==================================================");
-                System.out.println();
+                Map day = (Map) parts.get("day");
+                int dayTemperature = Integer.parseInt(day.get("temp_avg").toString());
+                String dayConditionKey = day.get("condition").toString();
+
+                Weather weather = new Weather(city, date, nightTemperature, dayTemperature,
+                        References.yandexApiConditions.getOrDefault(nightConditionKey, nightConditionKey),
+                        References.yandexApiConditions.getOrDefault(dayConditionKey, dayConditionKey));
+                System.out.println(weather);
             }
         } else {
             System.out.println("Не получилось. Вернулся код:" + response.code());
         }
-
-
-
     }
 }
