@@ -1,10 +1,12 @@
 import api.YandexApi;
 import exception.YandexApiException;
+import model.City;
 import model.Weather;
 import repository.DataBaseRepository;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.EnumSet;
 import java.util.List;
 
 public class Main {
@@ -19,23 +21,37 @@ public class Main {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         boolean isRunning = true;
         while (isRunning) {
-            System.out.println("Введите команду: 'загрузить', 'показать', 'очистить', 'завершить'");
+            System.out.println("Введите команду: 'обновить', 'показать', 'завершить'");
             // ждем команду от пользователя
             String userRequest = reader.readLine();
 
             switch (userRequest) {
-                case "загрузить": {
+                case "обновить": {
                     try {
-                        List<Weather> weathers = yandexApi.getWeather();
-                        repository.saveWeather(weathers);
-                    }catch (YandexApiException e) {
+                        repository.cleanDb();
+                        for (City city : City.values()) {
+                            List<Weather> weathers = yandexApi.getWeather(city);
+                            repository.saveWeather(weathers);
+                        }
+                        System.out.println("Погода успешно сохранена в базу данных");
+                    } catch (YandexApiException e) {
                         System.out.println(e.getMessage());
                     }
                     break;
                 }
 
                 case "показать": {
-                    List<Weather> weatherFromDb = repository.getWeatherFromDb();
+                    System.out.println("Введите город :");
+                    String city = reader.readLine();
+                    List<Weather> weatherFromDb = null;
+
+                    for (City cityEnum : City.values()) {
+                        if(city.equals(cityEnum.getName())) {
+                            weatherFromDb = repository.getWeatherFromDb(cityEnum);
+                            break;
+                        }
+                    }
+
                     if (weatherFromDb != null) {
                         if (weatherFromDb.size() == 0) {
                             System.out.println("Записей нет");
@@ -44,13 +60,9 @@ public class Main {
                                 System.out.println(weather);
                             }
                         }
+                    } else {
+                        System.out.println("Программа не знает такого города");
                     }
-                    break;
-                }
-
-                case "очистить": {
-                    repository.cleanDb();
-                    System.out.println("Таблица погоды очищена");
                     break;
                 }
                 case "завершить": {

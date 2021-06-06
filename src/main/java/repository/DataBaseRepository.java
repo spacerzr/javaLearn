@@ -1,5 +1,6 @@
 package repository;
 
+import model.City;
 import model.Weather;
 
 import java.sql.*;
@@ -58,7 +59,6 @@ public class DataBaseRepository {
                 preparedStatement.addBatch();
             }
             preparedStatement.executeBatch();
-            System.out.println("Погода успешно сохранена в базу данных");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -68,23 +68,24 @@ public class DataBaseRepository {
      * Метод получения данных из базы и превращения их в объекты типа Weather
      * @return список полученных объектов из базы
      */
-    public List<Weather> getWeatherFromDb() {
-        String getWeatherSql = "SELECT * FROM Weather";
+    public List<Weather> getWeatherFromDb(City city) {
+        String getWeatherSql = "SELECT * FROM Weather WHERE city = ?";
 
         try (Connection connection = DriverManager.getConnection(dbUrl);
              PreparedStatement preparedStatement = connection.prepareStatement(getWeatherSql)) {
+            preparedStatement.setString(1, city.getName());
 
             ResultSet resultSet = preparedStatement.executeQuery();
             List<Weather> weathers = new ArrayList<>();
             while (resultSet.next()) {
-                String city = resultSet.getString("city");
+                String cityString = resultSet.getString("city");
                 String date = resultSet.getString("date");
                 int nightTemperature = resultSet.getInt("night_temperature");
                 int dayTemperature = resultSet.getInt("day_temperature");
                 String nightCondition = resultSet.getString("night_condition");
                 String dayCondition = resultSet.getString("day_condition");
 
-                Weather weather = new Weather(city, date, nightTemperature, dayTemperature, nightCondition, dayCondition);
+                Weather weather = new Weather(cityString, date, nightTemperature, dayTemperature, nightCondition, dayCondition);
                 weathers.add(weather);
             }
             return weathers;

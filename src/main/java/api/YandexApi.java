@@ -2,6 +2,7 @@ package api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import exception.YandexApiException;
+import model.City;
 import model.Weather;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -17,20 +18,18 @@ import java.util.Map;
 public class YandexApi {
     private final static String yandexKey = "bb26f92d-618f-4ec8-a338-b8bd5aadc5ba";
     private final static String yandexApiKeyHeaderName = "X-Yandex-API-Key";
-    private final static String lat = "59.939079";
-    private final static String lon = "30.315766";
 
     private final OkHttpClient client = new OkHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public List<Weather> getWeather() throws IOException, YandexApiException {
+    public List<Weather> getWeather(City city) throws IOException, YandexApiException {
         HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
                 .host("api.weather.yandex.ru")
                 .addPathSegment("v2")
                 .addPathSegment("forecast")
-                .addQueryParameter("lat", lat)
-                .addQueryParameter("lon", lon)
+                .addQueryParameter("lat", city.getLat())
+                .addQueryParameter("lon", city.getLon())
                 .addQueryParameter("limit", "5")
                 .addQueryParameter("lang", "ru_RU")
                 .addQueryParameter("extra", "false")
@@ -50,7 +49,7 @@ public class YandexApi {
             Map geoObject = (Map) responseMap.get("geo_object");
             Map locality = (Map) geoObject.get("locality");
 
-            String city = locality.get("name").toString();
+            String cityFromJson = locality.get("name").toString();
 
             List dataList = (ArrayList) responseMap.get("forecasts");
 
@@ -67,7 +66,7 @@ public class YandexApi {
                 int dayTemperature = Integer.parseInt(day.get("temp_avg").toString());
                 String dayConditionKey = day.get("condition").toString();
 
-                Weather weather = new Weather(city, date, nightTemperature, dayTemperature,
+                Weather weather = new Weather(cityFromJson, date, nightTemperature, dayTemperature,
                         References.yandexApiConditions.getOrDefault(nightConditionKey, nightConditionKey),
                         References.yandexApiConditions.getOrDefault(dayConditionKey, dayConditionKey));
                 result.add(weather);
