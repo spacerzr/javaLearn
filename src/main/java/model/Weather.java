@@ -1,5 +1,8 @@
 package model;
 
+/**
+ * Объект модель данных "погода"
+ */
 public class Weather {
     private final String city;
     private final String date;
@@ -15,6 +18,30 @@ public class Weather {
         this.dayTemperature = dayTemperature;
         this.nightCondition = nightCondition;
         this.dayCondition = dayCondition;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public int getNightTemperature() {
+        return nightTemperature;
+    }
+
+    public int getDayTemperature() {
+        return dayTemperature;
+    }
+
+    public String getNightCondition() {
+        return nightCondition;
+    }
+
+    public String getDayCondition() {
+        return dayCondition;
     }
 
     @Override
